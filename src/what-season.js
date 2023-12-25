@@ -12,15 +12,21 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 function getSeason(date) {
-  if (!(date instanceof Date) || isNaN(date)) {
+  if (!date || Object.prototype.toString.call(date) !== '[object Date]' || isNaN(date.getTime())) {
     throw new Error('Invalid date!');
   }
 
-  const month = date.getMonth();
+  const month = date.getMonth() + 1;
 
-  return (month >= 2 && month <= 4) ? 'spring' :
-         (month >= 5 && month <= 7) ? 'summer' :
-         (month >= 8 && month <= 10) ? 'autumn' : 'winter';
+  if (month >= 3 && month <= 5) {
+    return 'spring';
+  } else if (month >= 6 && month <= 8) {
+    return 'summer';
+  } else if (month >= 9 && month <= 11) {
+    return 'autumn';
+  } else {
+    return 'winter';
+  }
 }
 
 module.exports = {

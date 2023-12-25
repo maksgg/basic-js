@@ -25,45 +25,70 @@ class VigenereCipheringMachine {
     this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   }
 
-  process(message, key, operation) {
-    if (typeof message !== 'string' || typeof key !== 'string') {
-      throw new Error('Both message and key must be strings');
+  checkArguments(message, key) {
+    if (!message || !key) {
+      throw new Error('Invalid input. Both message and key are required.');
     }
-
-    const result = [];
-    let keyIndex = 0;
-
-    for (const char of message.toUpperCase()) {
-      if (this.isUpperCase(char)) {
-        const keyChar = key[keyIndex % key.length].toUpperCase();
-        result.push(operation(char, keyChar));
-        keyIndex++;
-      } else {
-        result.push(char);
-      }
-    }
-
-    return this.reverse ? result.reverse().join('') : result.join('');
   }
 
   encrypt(message, key) {
-    return this.process(message, key, (char, keyChar) =>
-      this.isUpperCase(char)
-        ? this.alphabet[(this.alphabet.indexOf(char) + this.alphabet.indexOf(keyChar)) % 26]
-        : char
-    );
+    this.checkArguments(message, key);
+
+    message = message.toUpperCase();
+    key = key.toUpperCase();
+
+    let result = '';
+    let keyIndex = 0;
+
+    for (let i = 0; i < message.length; i++) {
+      const char = message[i];
+
+      if (this.alphabet.includes(char)) {
+        const messageIndex = this.alphabet.indexOf(char);
+        const keyChar = key[keyIndex % key.length];
+        const keyIndexInAlphabet = this.alphabet.indexOf(keyChar);
+
+        const encryptedIndex = (messageIndex + keyIndexInAlphabet) % 26;
+        const encryptedChar = this.alphabet[encryptedIndex];
+
+        result += encryptedChar;
+        keyIndex++;
+      } else {
+        result += char;
+      }
+    }
+
+    return this.reverse ? result : result.split('').reverse().join('');
   }
 
   decrypt(encryptedMessage, key) {
-    return this.process(encryptedMessage, key, (char, keyChar) =>
-      this.isUpperCase(char)
-        ? this.alphabet[(this.alphabet.indexOf(char) - this.alphabet.indexOf(keyChar) + 26) % 26]
-        : char
-    );
-  }
+    this.checkArguments(encryptedMessage, key);
 
-  isUpperCase(char) {
-    return char >= 'A' && char <= 'Z';
+    encryptedMessage = encryptedMessage.toUpperCase();
+    key = key.toUpperCase();
+
+    let result = '';
+    let keyIndex = 0;
+
+    for (let i = 0; i < encryptedMessage.length; i++) {
+      const char = encryptedMessage[i];
+
+      if (this.alphabet.includes(char)) {
+        const encryptedIndex = this.alphabet.indexOf(char);
+        const keyChar = key[keyIndex % key.length];
+        const keyIndexInAlphabet = this.alphabet.indexOf(keyChar);
+
+        const decryptedIndex = (encryptedIndex - keyIndexInAlphabet + 26) % 26;
+        const decryptedChar = this.alphabet[decryptedIndex];
+
+        result += decryptedChar;
+        keyIndex++;
+      } else {
+        result += char;
+      }
+    }
+
+    return this.reverse ? result : result.split('').reverse().join('');
   }
 }
 
